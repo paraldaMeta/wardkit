@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0e5c57">
+  <meta name="color-scheme" content="light">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="口袋病历">
+  <title>口袋病历</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <a class="skip" href="#panel-note">跳到内容</a>
+  <header>
+    <p class="eyebrow">核对用 · 不出这台设备</p>
+    <h1>口袋病历</h1>
+  </header>
+  <main>
+    <section id="panel-note">
+      <div class="card">
+        <div class="row">
+          <label class="grow">类型
+            <select id="note-kind">
+              <option value="clinic">门诊</option>
+              <option value="admit">入院记录</option>
+              <option value="first">首次病程</option>
+              <option value="daily">日常病程</option>
+              <option value="discharge">出院记录</option>
+            </select>
+          </label>
+          <button type="button" class="primary" id="new-note">新建</button>
+        </div>
+        <h2 id="note-title"></h2>
+        <div id="note-fields"></div>
+        <p id="note-error" class="error" role="alert"></p>
+        <p id="save-state" class="hint"></p>
+        <div class="row">
+          <button type="button" class="primary" id="copy-note">复制这份</button>
+          <button type="button" class="ghost" id="voice" hidden>语音追加</button>
+          <button type="button" class="ghost" id="delete-note">删除这份</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2>草稿</h2>
+        <div id="draft-list"></div>
+      </div>
+      <p class="fine">公式给核对用，不提供诊断或医嘱。草稿只在这台设备，清除网站数据即丢失。</p>
+    </section>
+
+    <section id="panel-pump" hidden>
+      <form id="pump-form" class="card">
+        <fieldset>
+          <legend>算法</legend>
+          <label><input type="radio" name="pump-mode" value="weight" checked> 按体重</label>
+          <label><input type="radio" name="pump-mode" value="unit"> 按单位</label>
+        </fieldset>
+        <fieldset>
+          <legend>求什么</legend>
+          <label><input type="radio" name="pump-way" value="rate" checked> 算速度</label>
+          <label><input type="radio" name="pump-way" value="dose"> 算剂量</label>
+        </fieldset>
+        <p class="hint">配液预设只填药量和液体，剂量留空。各医院配法不同，改完再用。</p>
+        <div class="row" id="pump-presets"></div>
+        <label id="pump-weight-row">体重（kg）
+          <input id="pump-weight" inputmode="decimal" autocomplete="off" spellcheck="false">
+        </label>
+        <label id="pump-drug-row">药量（mg）
+          <input id="pump-drug" inputmode="decimal" autocomplete="off" spellcheck="false">
+        </label>
+        <div id="pump-unit-row" class="row" hidden>
+          <label class="grow">药量
+            <input id="pump-amount" inputmode="decimal" autocomplete="off" spellcheck="false">
+          </label>
+          <label>单位
+            <select id="pump-unit">
+              <option value="U">U</option>
+              <option value="mg">mg</option>
+            </select>
+          </label>
+        </div>
+        <label id="pump-volume-row">液体（ml）
+          <input id="pump-volume" inputmode="decimal" autocomplete="off" spellcheck="false">
+        </label>
+        <label id="pump-mcg-row">剂量（mcg/kg/min）
+          <input id="pump-mcg" inputmode="decimal" autocomplete="off" spellcheck="false">
+        </label>
+        <label id="pump-hour-row" hidden>剂量（每小时）
+          <input id="pump-hour" inputmode="decimal" autocomplete="off" spellcheck="false">
+        </label>
+        <label id="pump-ml-row" hidden>速度（ml/h）
+          <input id="pump-ml" inputmode="decimal" autocomplete="off" spellcheck="false">
+        </label>
+        <p id="pump-out" class="result" aria-live="polite"></p>
+        <p id="pump-formula" class="formula"></p>
+        <p id="pump-error" class="error" role="alert"></p>
+      </form>
+      <p class="fine">公式给核对用，不提供诊断或医嘱。</p>
+    </section>
+
+    <section id="panel-dose" hidden>
+      <form id="dose-form" class="card">
+        <h2>按体重</h2>
+        <label>每公斤剂量
+          <input id="dose-perkg" inputmode="decimal" autocomplete="off" spellcheck="false">
+        </label>
+        <label>单位
+          <input id="dose-unit" value="mg" autocomplete="off" maxlength="12">
+        </label>
+        <label>体重（kg）
+          <input id="dose-weight" inputmode="decimal" autocomplete="off" spellcheck="false">
+        </label>
+        <p id="dose-out" class="result" aria-live="polite"></p>
+        <p id="dose-formula" class="formula"></p>
+        <p id="dose-error" class="error" role="alert"></p>
+      </form>
+      <form id="crcl-form" class="card">
+        <h2>肌酐清除率</h2>
+        <p class="hint">Cockcroft-Gault。体重用你决定的那个公斤数。</p>
+        <label>年龄（岁）
+          <input id="crcl-age" inputmode="decimal" autocomplete="off" spellcheck="false">
+        </label>
+        <label>体重（kg）
+          <input id="crcl-weight" inputmode="decimal" autocomplete="off" spellcheck="false">
+        </label>
+        <label>肌酐
+          <input id="crcl-scr" inputmode="decimal" autocomplete="off" spellcheck="false">
+        </label>
+        <div class="row">
+          <label class="grow">肌酐单位
+            <select id="crcl-unit">
+              <option value="umol">μmol/L</option>
+              <option value="mg">mg/dL</option>
+            </select>
+          </label>
+          <label class="grow">性别
+            <select id="crcl-sex">
+              <option value="male">男</option>
+              <option value="female">女</option>
+            </select>
+          </label>
+        </div>
+        <p id="crcl-out" class="result" aria-live="polite"></p>
+        <p id="crcl-formula" class="formula"></p>
+        <p id="crcl-error" class="error" role="alert"></p>
+      </form>
+      <form id="drip-form" class="card">
+        <h2>滴速</h2>
+        <label>滴系数（滴/ml）
+          <input id="drip-factor" inputmode="decimal" value="20" autocomplete="off" spellcheck="false">
+        </label>
+        <label>速度（ml/h）
+          <input id="drip-ml" inputmode="decimal" autocomplete="off" spellcheck="false">
+        </label>
+        <label>滴速（滴/分）
+          <input id="drip-drops" inputmode="decimal" autocomplete="off" spellcheck="false">
+        </label>
+        <p id="drip-formula" class="formula"></p>
+        <p id="drip-error" class="error" role="alert"></p>
+      </form>
+      <p class="fine">公式给核对用，不提供诊断或医嘱。</p>
+    </section>
+
+    <section id="panel-cost" hidden>
+      <form id="cost-form" class="card">
+        <h2>费用对照</h2>
+        <p class="hint">支付标准自己填。这是对照，不是 DRG 分组器。</p>
+        <label>支付标准（元）
+          <input id="cost-payment" inputmode="decimal" autocomplete="off" spellcheck="false">
+        </label>
+        <label>药品（元）
+          <input id="cost-drug" inputmode="decimal" autocomplete="off" spellcheck="false">
+        </label>
+        <label>耗材（元）
+          <input id="cost-material" inputmode="decimal" autocomplete="off" spellcheck="false">
+        </label>
+        <label>检查（元）
+          <input id="cost-exam" inputmode="decimal" autocomplete="off" spellcheck="false">
+        </label>
+        <label>其他（元）
+          <input id="cost-other" inputmode="decimal" autocomplete="off" spellcheck="false">
+        </label>
+        <p id="cost-out" class="result" aria-live="polite"></p>
+        <p id="cost-formula" class="formula"></p>
+        <p id="cost-error" class="error" role="alert"></p>
+      </form>
+      <div class="card">
+        <h2>记下支付标准</h2>
+        <label>病组名
+          <input id="cost-name" autocomplete="off" maxlength="40">
+        </label>
+        <button type="button" class="primary" id="save-payment">记下</button>
+        <div id="pay-list" class="stack"></div>
+      </div>
+      <p class="fine">公式给核对用，不提供诊断或医嘱。</p>
+    </section>
+  </main>
+  <nav>
+    <button type="button" data-panel="note">病历</button>
+    <button type="button" data-panel="pump">微泵</button>
+    <button type="button" data-panel="dose">剂量</button>
+    <button type="button" data-panel="cost">费用</button>
+  </nav>
+  <noscript><p class="fine">需要 JavaScript。</p></noscript>
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+.DS_Store
+node_modules/
+.wrangler/
+.env
+.env.*
+android/
+.bubblewrap/
+*.keystore
+*.jks
+twa-manifest.json
+*.apk
+store_icon.png
