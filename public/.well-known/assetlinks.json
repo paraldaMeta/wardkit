@@ -4,7 +4,7 @@
     "target": {
       "namespace": "android_app",
       "package_name": "app.wardkit.pocket",
-      "sha256_cert_fingerprints": ["REPLACE_WITH_SHA256_FROM_KEYSTORE"]
+      "sha256_cert_fingerprints": ["96:90:7C:15:8D:21:86:16:50:24:D7:0A:6C:2D:51:69:D7:D3:6E:35:42:72:4B:60:9C:14:6F:53:F9:27:45:2D"]
     }
   }
 ]
